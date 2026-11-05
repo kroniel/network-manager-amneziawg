@@ -414,7 +414,7 @@ install(FILES ${CMAKE_BINARY_DIR}/nm-amneziawg-service.name DESTINATION ${NM_VPN
 
 if(WITH_GTK3)
     add_library(nm-vpn-plugin-amneziawg-editor SHARED ${EDITOR_SOURCES})
-    target_include_directories(nm-vpn-plugin-amneziawg-editor PRIVATE ${CMAKE_SOURCE_DIR}/shared ${CMAKE_BINARY_DIR} ${GTK3_INCLUDE_DIRS} ${LIBNMA3_INCLUDE_DIRS})
+    target_include_directories(nm-vpn-plugin-amneziawg-editor PRIVATE ${CMAKE_SOURCE_DIR}/shared ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/properties ${GTK3_INCLUDE_DIRS} ${LIBNMA3_INCLUDE_DIRS})
     target_sources(nm-vpn-plugin-amneziawg-editor PRIVATE properties/resources.h properties/resources.c)
     target_link_libraries(nm-vpn-plugin-amneziawg-editor PRIVATE
         ${COMMON_LDFLAGS} nm-vpn-plugin-amneziawg-core nm-vpn-plugin-amneziawg-utils ${GLIB_LIBRARIES} ${GTK3_LIBRARIES} ${LIBNM_LIBRARIES} ${LIBNMA3_LIBRARIES}
