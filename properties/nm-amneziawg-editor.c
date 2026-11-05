@@ -31,6 +31,9 @@
 #include "nm-amneziawg-editor.h"
 #include <nma-ui-utils.h>
 
+/* GResource с UI файлом */
+#include "resources.h"
+
 #include <arpa/inet.h>
 #include <errno.h>
 #include <gtk/gtk.h>
@@ -1788,11 +1791,17 @@ amneziawg_editor_new(NMConnection *connection, GError **error)
 
     gtk_builder_set_translation_domain(priv->builder, GETTEXT_PACKAGE);
 
-    // create the GUI from our .ui file
-    // note: the resource is described in gresource.xml and gets compiled to resources.c
+    /* Регистрируем GResource (скомпилирован в resources.c) */
+    g_resources_register(gresource_get_resource());
+
+    /* Загружаем UI из GResource - используем GTK4-версию если собрано с GTK4 */
+#ifdef AMNEZIAWG_GTK4
+    if (!gtk_builder_add_from_resource(priv->builder, "/org/freedesktop/network-manager-amneziawg/nm-amneziawg-dialog-gtk4.ui", error)) {
+#else
     if (!gtk_builder_add_from_resource(priv->builder, "/org/freedesktop/network-manager-amneziawg/nm-amneziawg-dialog.ui", error)) {
+#endif
         g_object_unref(object);
-        g_return_val_if_reached(NULL);
+        return NULL;
     }
 
     priv->widget = GTK_WIDGET(gtk_builder_get_object(priv->builder, "wg-vbox"));

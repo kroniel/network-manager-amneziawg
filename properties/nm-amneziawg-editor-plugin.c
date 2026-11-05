@@ -210,7 +210,11 @@ get_editor(NMVpnEditorPlugin *iface, NMConnection *connection, GError **error)
     g_return_val_if_fail(!error || !*error, NULL);
 
     {
+#ifdef AMNEZIAWG_GTK4
+        return nm_vpn_plugin_utils_load_editor(NM_PLUGIN_DIR "/libnm-gtk4-vpn-plugin-amneziawg-editor.so",
+#else
         return nm_vpn_plugin_utils_load_editor(NM_PLUGIN_DIR "/libnm-vpn-plugin-amneziawg-editor.so",
+#endif
                                                "nm_vpn_editor_factory_amneziawg",
                                                _call_editor_factory,
                                                iface,

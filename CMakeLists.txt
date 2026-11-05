@@ -397,6 +397,7 @@ target_compile_options(nm-vpn-plugin-amneziawg PRIVATE
     ${COMMON_CFLAGS} ${COMMON_DEFINITIONS} ${PROPERTIES_CPPFLAGS}
     -DNETWORKMANAGER_COMPILATION=NM_NETWORKMANAGER_COMPILATION_LIB_BASE
     -DNM_PLUGIN_DIR="${NM_PLUGIN_DIR}"
+    $<$<BOOL:${WITH_GTK4}>:-DAMNEZIAWG_GTK4>
 )
 target_link_libraries(nm-vpn-plugin-amneziawg PRIVATE ${COMMON_LDFLAGS} nm-vpn-plugin-amneziawg-core ${LIBNM_LIBRARIES} ${CMAKE_DL_LIBS})
 set_target_properties(nm-vpn-plugin-amneziawg PROPERTIES
@@ -414,6 +415,7 @@ install(FILES ${CMAKE_BINARY_DIR}/nm-amneziawg-service.name DESTINATION ${NM_VPN
 if(WITH_GTK3)
     add_library(nm-vpn-plugin-amneziawg-editor SHARED ${EDITOR_SOURCES})
     target_include_directories(nm-vpn-plugin-amneziawg-editor PRIVATE ${CMAKE_SOURCE_DIR}/shared ${CMAKE_BINARY_DIR} ${GTK3_INCLUDE_DIRS} ${LIBNMA3_INCLUDE_DIRS})
+    target_sources(nm-vpn-plugin-amneziawg-editor PRIVATE properties/resources.h properties/resources.c)
     target_link_libraries(nm-vpn-plugin-amneziawg-editor PRIVATE
         ${COMMON_LDFLAGS} nm-vpn-plugin-amneziawg-core nm-vpn-plugin-amneziawg-utils ${GLIB_LIBRARIES} ${GTK3_LIBRARIES} ${LIBNM_LIBRARIES} ${LIBNMA3_LIBRARIES}
     )
@@ -429,11 +431,12 @@ if(WITH_GTK3)
         OUTPUT_NAME "nm-vpn-plugin-amneziawg-editor"
     )
     install(TARGETS nm-vpn-plugin-amneziawg-editor LIBRARY DESTINATION ${NM_PLUGIN_DIR})
+    install(FILES properties/nm-amneziawg-dialog.ui DESTINATION ${CMAKE_INSTALL_DATADIR}/NetworkManager-amneziawg)
 endif()
 
 if(WITH_GTK4)
-    add_library(nm-vpn-plugin-amneziawg-editor-gtk4 SHARED ${EDITOR_SOURCES})
-    target_include_directories(nm-vpn-plugin-amneziawg-editor-gtk4 PRIVATE ${CMAKE_SOURCE_DIR}/shared ${CMAKE_BINARY_DIR} ${GTK4_INCLUDE_DIRS} ${LIBNMA4_INCLUDE_DIRS})
+    add_library(nm-vpn-plugin-amneziawg-editor-gtk4 SHARED ${EDITOR_SOURCES} ${CMAKE_BINARY_DIR}/properties/resources.c)
+    target_include_directories(nm-vpn-plugin-amneziawg-editor-gtk4 PRIVATE ${CMAKE_SOURCE_DIR}/shared ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/properties ${GTK4_INCLUDE_DIRS} ${LIBNMA4_INCLUDE_DIRS})
     target_link_libraries(nm-vpn-plugin-amneziawg-editor-gtk4 PRIVATE
         ${COMMON_LDFLAGS} nm-vpn-plugin-amneziawg-core nm-vpn-plugin-amneziawg-utils ${GLIB_LIBRARIES} ${GTK4_LIBRARIES} ${LIBNM_LIBRARIES} ${LIBNMA4_LIBRARIES}
     )
@@ -441,6 +444,7 @@ if(WITH_GTK4)
         ${COMMON_CFLAGS} ${GTK4_CFLAGS} ${COMMON_DEFINITIONS} ${PROPERTIES_CPPFLAGS}
         -DNETWORKMANAGER_COMPILATION=NM_NETWORKMANAGER_COMPILATION_LIB_EDITOR
         -DGDK_VERSION_MIN_REQUIRED=GDK_VERSION_4_6
+        -DAMNEZIAWG_GTK4
     )
     target_link_options(nm-vpn-plugin-amneziawg-editor-gtk4 PRIVATE
             "-Wl,--version-script=${CMAKE_SOURCE_DIR}/properties/nm-vpn-plugin-amneziawg-editor.ver"

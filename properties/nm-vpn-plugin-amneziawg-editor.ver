@@ -1,6 +1,7 @@
 {
 global:
 	nm_vpn_editor_factory_amneziawg;
+	gresource_get_resource;
 local:
 	*;
 };

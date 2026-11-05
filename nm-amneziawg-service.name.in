@@ -5,4 +5,9 @@ program=@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBEXECDIR@/nm-amneziawg-service
 supports-multiple-connections=false
 
 [libnm]
-plugin=@NM_PLUGIN_DIR@/libnm-vpn-plugin-amneziawg.so
+plugin=libnm-vpn-plugin-amneziawg.so
+
+[GNOME]
+auth-dialog=/usr/libexec/nm-amneziawg-service
+properties=libnm-gtk4-vpn-plugin-amneziawg-editor
+supports-external-ui-mode=true
