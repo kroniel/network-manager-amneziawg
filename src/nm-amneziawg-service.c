@@ -421,9 +421,9 @@ set_config(NMVpnServicePlugin *plugin, AWGDevice *device, const gchar *if_name, 
     peers_list = awg_device_get_peers_list(device);
     if (!peers_list) {
         g_warning("set_config: no peers in device!");
+        g_free(configs);
         return FALSE;
     }
-
     {
         AWGDevicePeer *peer = peers_list->data;
         GInetAddress *gateway_addr = NULL;
@@ -639,7 +639,6 @@ connect_worker(GTask *task, gpointer source_object, gpointer task_data, GCancell
         }
         return;
     }
-
     /* Pre-flight validation: a device without PrivateKey (lost vpn.secrets)
      * or peers produces a keyless config that "awg setconf"/awg-quick rejects
      * with "Configuration parsing error". Fail early with a clear message. */
@@ -658,7 +657,6 @@ connect_worker(GTask *task, gpointer source_object, gpointer task_data, GCancell
                                 "Could not create connection manager");
         return;
     }
-
     if (!awg_connection_manager_connect(conn_manager, cancellable, &error)) {
         g_object_unref(conn_manager);
         g_object_unref(device);
@@ -670,7 +668,6 @@ connect_worker(GTask *task, gpointer source_object, gpointer task_data, GCancell
         }
         return;
     }
-
     /* If method=manual and netlink (not external), add routes in the worker thread */
     if (!awg_connection_manager_manages_routes(conn_manager)) {
         GError *route_error = NULL;
@@ -868,17 +865,25 @@ check_peer_need_secrets(NMSettingVpn *s_vpn, guint peer_idx, const char *key_pre
     key = g_strdup_printf(key_prefix, peer_idx);
 
     secret = nm_setting_vpn_get_secret(s_vpn, key);
+    
     has_flags = nm_setting_get_secret_flags(NM_SETTING(s_vpn), key, &flags, NULL);
 
     g_free(key);
 
     /* A peer without an explicitly configured PSK does not need a secret.
      * Secret flags are written for configured PSKs by the editor/import path,
-     * so their absence distinguishes an optional, unset PSK. */
-    if (!has_flags)
+     * so their absence distinguishes an optional, unset PSK.
+     * Если flags = NONE (0x0) и секрет отсутствует, то PSK не был настроен. */
+    if (!has_flags) {
         return FALSE;
+    }
 
     if (secret && *secret) {
+        return FALSE;
+    }
+
+    /* Если секрет отсутствует и flags = NONE, то PSK не был настроен */
+    if (flags == NM_SETTING_SECRET_FLAG_NONE) {
         return FALSE;
     }
 
@@ -896,32 +901,38 @@ wg_need_secrets(NMVpnServicePlugin *plugin,
                 GError **error)
 {
     NMSettingVpn *s_vpn;
-    NMSettingSecretFlags flags = NM_SETTING_SECRET_FLAG_NONE;
-    const char *secret;
-    gboolean has_flags;
+    const char *private_key;
 
     s_vpn = nm_connection_get_setting_vpn(connection);
     if (!s_vpn) {
-        return FALSE;
-    }
-
-    secret = nm_setting_vpn_get_secret(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY);
-    has_flags = nm_setting_get_secret_flags(NM_SETTING(s_vpn), NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY, &flags, NULL);
-
-    if ((!has_flags || !secret || !*secret) &&
-        !(flags & NM_SETTING_SECRET_FLAG_NOT_REQUIRED)) {
-        *setting_name = NM_SETTING_VPN_SETTING_NAME;
+        *setting_name = "";
         return TRUE;
     }
 
-    for (guint i = 0; i < NM_AWG_MAX_PEERS; i++) {
-        if (check_peer_need_secrets(s_vpn, i, NM_AWG_VPN_CONFIG_PEER_PRESHARED_KEY)) {
-            *setting_name = NM_SETTING_VPN_SETTING_NAME;
-            return TRUE;
-        }
+    /* PrivateKey теперь хранится как data item (для совместимости с импортом через GUI).
+     * Для обратной совместимости также проверяем secret "local-private-key" (старый способ). */
+    private_key = nm_setting_vpn_get_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY);
+
+    /* Если PrivateKey нет в data items, проверяем secrets (для старых соединений) */
+    if (!private_key || !*private_key) {
+        private_key = nm_setting_vpn_get_secret(s_vpn, "local-private-key");
     }
 
-    return FALSE;
+    /* Если PrivateKey есть и не пустой - секреты не нужны */
+    if (private_key && *private_key) {
+        /* Проверяем peer secrets (preshared keys) */
+        for (guint i = 0; i < NM_AWG_MAX_PEERS; i++) {
+            if (check_peer_need_secrets(s_vpn, i, NM_AWG_VPN_CONFIG_PEER_PRESHARED_KEY)) {
+                *setting_name = NM_SETTING_VPN_SETTING_NAME;
+                return TRUE;
+            }
+        }
+        return FALSE;
+    }
+
+    /* PrivateKey отсутствует - он обязателен */
+    *setting_name = NM_SETTING_VPN_SETTING_NAME;
+    return TRUE;
 }
 
 static gboolean

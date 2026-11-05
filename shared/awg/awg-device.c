@@ -154,6 +154,7 @@ awg_device_init(AWGDevice *self)
 
     priv->private_key = NULL;
     priv->private_key_base64 = NULL;
+    priv->private_key_flags = NM_SETTING_SECRET_FLAG_NONE;
     priv->public_key = NULL;
     priv->public_key_base64 = NULL;
     priv->address_v4 = NULL;

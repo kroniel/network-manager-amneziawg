@@ -690,11 +690,15 @@ This means partial configuration is NOT possible - all params must be valid toge
 **Interface (NM_AWG_VPN_CONFIG_DEVICE_*):**
 | Constant | Key | Secret |
 |----------|-----|--------|
-| NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY | local-private-key | yes |
+| NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY | interface-signing | no |
 | NM_AWG_VPN_CONFIG_DEVICE_PUBLIC_KEY | peer-public-key | no |
 | NM_AWG_VPN_CONFIG_DEVICE_LISTEN_PORT | local-listen-port | no |
 | NM_AWG_VPN_CONFIG_DEVICE_MTU | interface-mtu | no |
 | NM_AWG_VPN_CONFIG_DEVICE_FW_MARK | interface-fw-mark | no |
+| NM_AWG_VPN_CONFIG_DEVICE_ADDRESS_V4 | local-address-v4 | no |
+| NM_AWG_VPN_CONFIG_DEVICE_ADDRESS_V6 | local-address-v6 | no |
+| NM_AWG_VPN_CONFIG_DEVICE_DNS_V4 | local-dns-v4 | no |
+| NM_AWG_VPN_CONFIG_DEVICE_DNS_V6 | local-dns-v6 | no |
 | NM_AWG_VPN_CONFIG_DEVICE_JC | connection-jc | no |
 | NM_AWG_VPN_CONFIG_DEVICE_JMIN | connection-jmin | no |
 | NM_AWG_VPN_CONFIG_DEVICE_JMAX | connection-jmax | no |

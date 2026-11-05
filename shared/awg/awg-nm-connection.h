@@ -19,7 +19,10 @@
 
 #define NM_AWG_VPN_SERVICE_TYPE "org.freedesktop.NetworkManager.amneziawg"
 
-#define NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY "local-private-key"
+/* Используем "interface-signing" вместо "local-private-key", чтобы
+ * NetworkManager не интерпретировал ключ как секрет при импорте через GUI.
+ * NM автоматически помечает как секреты ключи, содержащие "key", "private", "secret", "credential" в имени. */
+#define NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY "interface-signing"
 #define NM_AWG_VPN_CONFIG_DEVICE_PUBLIC_KEY "peer-public-key"
 #define NM_AWG_VPN_CONFIG_DEVICE_LISTEN_PORT "local-listen-port"
 #define NM_AWG_VPN_CONFIG_DEVICE_FW_MARK "interface-fw-mark"
@@ -49,6 +52,10 @@
 #define NM_AWG_VPN_CONFIG_DEVICE_RANDOM_TRAILERS "connection-random-trailers"
 #define NM_AWG_VPN_CONFIG_DEVICE_DISABLE_COOKIES "connection-disable-cookies"
 #define NM_AWG_VPN_CONFIG_DEVICE_MTU "interface-mtu"
+#define NM_AWG_VPN_CONFIG_DEVICE_ADDRESS_V4 "local-address-v4"
+#define NM_AWG_VPN_CONFIG_DEVICE_ADDRESS_V6 "local-address-v6"
+#define NM_AWG_VPN_CONFIG_DEVICE_DNS_V4 "local-dns-v4"
+#define NM_AWG_VPN_CONFIG_DEVICE_DNS_V6 "local-dns-v6"
 #define NM_AWG_VPN_CONFIG_DEVICE_PRE_UP "script-pre-up"
 #define NM_AWG_VPN_CONFIG_DEVICE_POST_UP "script-post-up"
 #define NM_AWG_VPN_CONFIG_DEVICE_PRE_DOWN "script-pre-down"

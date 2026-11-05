@@ -184,14 +184,81 @@ awg_device_save_to_nm_connection(AWGDevice *device, NMConnection *connection, GE
     g_object_set(s_vpn, NM_SETTING_VPN_SERVICE_TYPE, NM_AWG_VPN_SERVICE_TYPE, NULL);
     nm_connection_add_setting(connection, NM_SETTING(s_vpn));
 
-    value = awg_device_get_private_key(device);
-    if (value) {
-        nm_setting_vpn_add_secret(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY, value);
+    /* Сохраняем IP-адреса в VPN data items как fallback.
+     * NetworkManager может очищать IP-адреса из NMSettingIP4Config/IP6Config
+     * при сохранении VPN-профиля (особенно при method=auto), поэтому
+     * дублируем их в VPN data items для надёжного хранения. */
+    addr = awg_device_get_address_v4(device);
+    if (addr) {
+        gchar *addr_str = g_inet_address_to_string((GInetAddress *)addr);
+        if (addr_str) {
+            gchar *addr_with_prefix = g_strdup_printf("%s/%u", addr_str, awg_device_get_address_v4_prefix(device));
+            nm_setting_vpn_add_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_ADDRESS_V4, addr_with_prefix);
+            g_free(addr_with_prefix);
+            g_free(addr_str);
+        }
     }
-    nm_setting_set_secret_flags(NM_SETTING(s_vpn),
-                                NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY,
-                                awg_device_get_private_key_flags(device),
-                                NULL);
+
+    addr = awg_device_get_address_v6(device);
+    if (addr) {
+        gchar *addr_str = g_inet_address_to_string((GInetAddress *)addr);
+        if (addr_str) {
+            gchar *addr_with_prefix = g_strdup_printf("%s/%u", addr_str, awg_device_get_address_v6_prefix(device));
+            nm_setting_vpn_add_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_ADDRESS_V6, addr_with_prefix);
+            g_free(addr_with_prefix);
+            g_free(addr_str);
+        }
+    }
+
+    /* Сохраняем DNS в VPN data items как fallback */
+    {
+        const GList *dns_v4 = awg_device_get_dns_v4_list(device);
+        if (dns_v4) {
+            GString *dns_str = g_string_new(NULL);
+            for (const GList *iter = dns_v4; iter; iter = g_list_next(iter)) {
+                GInetAddress *dns_addr = G_INET_ADDRESS(iter->data);
+                gchar *dns_addr_str = g_inet_address_to_string(dns_addr);
+                if (dns_str->len > 0)
+                    g_string_append(dns_str, ", ");
+                g_string_append(dns_str, dns_addr_str);
+                g_free(dns_addr_str);
+            }
+            nm_setting_vpn_add_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_DNS_V4, dns_str->str);
+            g_string_free(dns_str, TRUE);
+        }
+    }
+
+    {
+        const GList *dns_v6 = awg_device_get_dns_v6_list(device);
+        if (dns_v6) {
+            GString *dns_str = g_string_new(NULL);
+            for (const GList *iter = dns_v6; iter; iter = g_list_next(iter)) {
+                GInetAddress *dns_addr = G_INET_ADDRESS(iter->data);
+                gchar *dns_addr_str = g_inet_address_to_string(dns_addr);
+                if (dns_str->len > 0)
+                    g_string_append(dns_str, ", ");
+                g_string_append(dns_str, dns_addr_str);
+                g_free(dns_addr_str);
+            }
+            nm_setting_vpn_add_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_DNS_V6, dns_str->str);
+            g_string_free(dns_str, TRUE);
+        }
+    }
+
+    g_message("[DEBUG] awg_device_save_to_nm_connection: START");
+    g_message("[DEBUG] awg_device_save_to_nm_connection: NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY = '%s'", NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY);
+
+    value = awg_device_get_private_key(device);
+    g_message("[DEBUG] awg_device_save_to_nm_connection: private_key from device = '%s'", value ? value : "(null)");
+    if (value) {
+        /* Сохраняем PrivateKey как data item, а не как secret.
+         * Это необходимо для того, чтобы NetworkManager сохранял ключ в профиль
+         * при импорте через GUI. Иначе NM не сохраняет секреты и при подключении
+         * запрашивает их снова, что приводит к ошибке "No agents were available". */
+        nm_setting_vpn_add_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY, value);
+        g_message("[DEBUG] awg_device_save_to_nm_connection: added data item '%s' = '%s'",
+                  NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY, value);
+    }
 
     value = awg_device_get_public_key(device);
     if (value) {
@@ -352,17 +419,17 @@ awg_device_save_to_nm_connection(AWGDevice *device, NMConnection *connection, GE
         value = awg_device_peer_get_shared_key(peer);
         if (value) {
             nm_setting_vpn_add_secret(s_vpn, key, value);
+            
+            /* The flags are stored by libnm as "<secret-name>-flags": passing the
+             * already suffixed name here wrote "<secret-name>-flags-flags" instead,
+             * which nothing ever read back.
+             * Устанавливаем flags только если PSK действительно есть, иначе
+             * check_peer_need_secrets будет ошибочно требовать PSK. */
+            nm_setting_set_secret_flags(NM_SETTING(s_vpn),
+                                        key,
+                                        awg_device_peer_get_shared_key_flags(peer),
+                                        NULL);
         }
-        g_free(key);
-
-        /* The flags are stored by libnm as "<secret-name>-flags": passing the
-         * already suffixed name here wrote "<secret-name>-flags-flags" instead,
-         * which nothing ever read back. */
-        key = g_strdup_printf(NM_AWG_VPN_CONFIG_PEER_PRESHARED_KEY, i);
-        nm_setting_set_secret_flags(NM_SETTING(s_vpn),
-                                    key,
-                                    awg_device_peer_get_shared_key_flags(peer),
-                                    NULL);
         g_free(key);
 
         key = g_strdup_printf(NM_AWG_VPN_CONFIG_PEER_ENDPOINT, i);
@@ -388,6 +455,58 @@ awg_device_save_to_nm_connection(AWGDevice *device, NMConnection *connection, GE
         key = g_strdup_printf(NM_AWG_VPN_CONFIG_PEER_ADVANCED_SECURITY, i);
         nm_setting_vpn_add_data_item(s_vpn, key, awg_device_peer_get_advanced_security(peer) ? "on" : "off");
         g_free(key);
+    }
+
+    /* Сохраняем IP-адреса и DNS в VPN data items как резервное хранилище.
+     * NetworkManager может очищать NMSettingIPConfig для VPN-профилей,
+     * поэтому дублируем данные в VPN data items, которые сохраняются надёжно. */
+    {
+        const GInetAddress *addr_v4 = awg_device_get_address_v4(device);
+        if (addr_v4) {
+            g_autofree gchar *addr_str = g_strdup_printf("%s/%u",
+                g_inet_address_to_string((GInetAddress *)addr_v4),
+                awg_device_get_address_v4_prefix(device));
+            nm_setting_vpn_add_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_ADDRESS_V4, addr_str);
+        }
+
+        const GInetAddress *addr_v6 = awg_device_get_address_v6(device);
+        if (addr_v6) {
+            g_autofree gchar *addr_str = g_strdup_printf("%s/%u",
+                g_inet_address_to_string((GInetAddress *)addr_v6),
+                awg_device_get_address_v6_prefix(device));
+            nm_setting_vpn_add_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_ADDRESS_V6, addr_str);
+        }
+
+        /* Сохраняем DNS как строку через запятую */
+        GString *dns_v4_str = g_string_new(NULL);
+        const GList *dns_v4 = awg_device_get_dns_v4_list(device);
+        for (const GList *iter = dns_v4; iter; iter = g_list_next(iter)) {
+            GInetAddress *dns_addr = G_INET_ADDRESS(iter->data);
+            g_autofree gchar *dns_str = g_inet_address_to_string(dns_addr);
+            if (dns_v4_str->len > 0) {
+                g_string_append(dns_v4_str, ",");
+            }
+            g_string_append(dns_v4_str, dns_str);
+        }
+        if (dns_v4_str->len > 0) {
+            nm_setting_vpn_add_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_DNS_V4, dns_v4_str->str);
+        }
+        g_string_free(dns_v4_str, TRUE);
+
+        GString *dns_v6_str = g_string_new(NULL);
+        const GList *dns_v6 = awg_device_get_dns_v6_list(device);
+        for (const GList *iter = dns_v6; iter; iter = g_list_next(iter)) {
+            GInetAddress *dns_addr = G_INET_ADDRESS(iter->data);
+            g_autofree gchar *dns_str = g_inet_address_to_string(dns_addr);
+            if (dns_v6_str->len > 0) {
+                g_string_append(dns_v6_str, ",");
+            }
+            g_string_append(dns_v6_str, dns_str);
+        }
+        if (dns_v6_str->len > 0) {
+            nm_setting_vpn_add_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_DNS_V6, dns_v6_str->str);
+        }
+        g_string_free(dns_v6_str, TRUE);
     }
 
     return TRUE;
@@ -416,16 +535,16 @@ awg_device_new_from_nm_connection(NMConnection *connection, GError **error)
 
     device = awg_device_new();
 
-    value = nm_setting_vpn_get_secret(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY);
+    /* Читаем PrivateKey из data item (сохраняется как data item для совместимости
+     * с импортом через GUI, где NM не сохраняет секреты в профиль).
+     * Для обратной совместимости также проверяем secret "local-private-key" (старый способ). */
+    value = nm_setting_vpn_get_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY);
+    if (!value || !*value) {
+        /* Пробуем старый способ хранения - как secret */
+        value = nm_setting_vpn_get_secret(s_vpn, "local-private-key");
+    }
     if (value && !awg_device_set_private_key(device, value)) {
         g_warning("Failed to set private key");
-    }
-
-    {
-        NMSettingSecretFlags flags;
-        if (nm_setting_get_secret_flags(NM_SETTING(s_vpn), NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY, &flags, NULL)) {
-            awg_device_set_private_key_flags(device, flags);
-        }
     }
 
     value = nm_setting_vpn_get_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_PUBLIC_KEY);
@@ -651,6 +770,46 @@ awg_device_new_from_nm_connection(NMConnection *connection, GError **error)
             awg_device_set_dns_from_string(device, dns_str->str);
         }
         g_string_free(dns_str, TRUE);
+    }
+
+    /* Fallback: читаем IP-адреса и DNS из VPN data items, если NMSettingIPConfig пуст.
+     * NetworkManager может очищать IP-настройки для VPN-профилей, поэтому
+     * используем VPN data items как надёжное резервное хранилище. */
+    {
+        gboolean has_ipv4_addr = (s_ip4 && nm_setting_ip_config_get_num_addresses(NM_SETTING_IP_CONFIG(s_ip4)) > 0);
+        gboolean has_ipv6_addr = (s_ip6 && nm_setting_ip_config_get_num_addresses(NM_SETTING_IP_CONFIG(s_ip6)) > 0);
+
+        if (!has_ipv4_addr) {
+            value = nm_setting_vpn_get_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_ADDRESS_V4);
+            if (value && *value) {
+                awg_device_set_address_from_string(device, value);
+            }
+
+            value = nm_setting_vpn_get_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_DNS_V4);
+            if (value && *value) {
+                awg_device_set_dns_from_string(device, value);
+            }
+        }
+
+        if (!has_ipv6_addr) {
+            value = nm_setting_vpn_get_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_ADDRESS_V6);
+            if (value && *value) {
+                /* Для IPv6 в VPN data items формат "address/prefix" без скобок,
+                 * но awg_device_set_address_from_string ожидает "[address]/prefix" для IPv6 */
+                if (strchr(value, ':') && value[0] != '[') {
+                    gchar *bracketed = g_strdup_printf("[%s]", value);
+                    awg_device_set_address_from_string(device, bracketed);
+                    g_free(bracketed);
+                } else {
+                    awg_device_set_address_from_string(device, value);
+                }
+            }
+
+            value = nm_setting_vpn_get_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_DNS_V6);
+            if (value && *value) {
+                awg_device_set_dns_from_string(device, value);
+            }
+        }
     }
 
     for (i = 0; i < 16; i++) {

@@ -182,6 +182,9 @@ check_peer_allowed_ips(const char *str)
 // used in 'check()', matches the functions above
 typedef gboolean (*CheckFunc)(const char *str);
 
+// Forward declaration
+static void set_widget_text(GtkBuilder *builder, const char *widget_name, const char *text);
+
 // helper function to reduce boilerplate code in 'check_validity()'
 static gboolean
 check(const AmneziaWGEditorPrivate *priv,
@@ -220,29 +223,24 @@ check_validity(AmneziaWGEditor *self, GError **error)
 {
     AmneziaWGEditorPrivate *priv = AMNEZIAWG_EDITOR_GET_PRIVATE(self);
     gboolean success = TRUE;
-    NMSettingVpn *s_vpn = nm_connection_get_setting_vpn(priv->connection);
-    NMSettingSecretFlags flags = NM_SETTING_SECRET_FLAG_NONE;
 
-    nm_setting_get_secret_flags(NM_SETTING(s_vpn), NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY, &flags, NULL);
-
-    if (!(flags & (NM_SETTING_SECRET_FLAG_NOT_REQUIRED | NM_SETTING_SECRET_FLAG_NOT_SAVED))) {
+    /* PrivateKey теперь хранится как data item, а не как secret.
+     * Проверяем наличие ключа в data item. */
+    {
+        NMSettingVpn *s_vpn = nm_connection_get_setting_vpn(priv->connection);
+        const char *key_text = s_vpn ? nm_setting_vpn_get_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY) : NULL;
         GtkWidget *key_entry = GTK_WIDGET(gtk_builder_get_object(priv->builder, "interface_private_key_entry"));
-        const char *key_text = key_entry ? AWG_EDITABLE_GET_TEXT(GTK_ENTRY(key_entry)) : NULL;
-        /* NM keeps the key of an existing connection in its own secret store
-         * and does not hand it to the editor. An empty field therefore means
-         * "keep the stored key", not "no key": requiring it here made every
-         * edit of a saved connection impossible. It stays required for a new
-         * connection, where nothing is stored yet. */
-        gboolean key_stored = priv->connection_known_to_nm || !priv->new_connection;
-
-        if ((!key_text || !key_text[0]) && key_stored) {
-            gtk_style_context_remove_class(gtk_widget_get_style_context(key_entry), "error");
-        } else if (!check(priv, "interface_private_key_entry", check_interface_private_key, AWG_CONFIG_DEVICE_PRIVATE_KEY, TRUE, error)) {
+        const char *entry_text = key_entry ? AWG_EDITABLE_GET_TEXT(GTK_EDITABLE(key_entry)) : NULL;
+        
+        /* Если в data item есть ключ, но в виджете его нет - используем ключ из data item */
+        if (key_text && key_text[0] && (!entry_text || !entry_text[0]) && key_entry) {
+            set_widget_text(priv->builder, "interface_private_key_entry", key_text);
+        }
+        
+        /* Проверяем валидность ключа */
+        if (!check(priv, "interface_private_key_entry", check_interface_private_key, AWG_CONFIG_DEVICE_PRIVATE_KEY, TRUE, error)) {
             success = FALSE;
         }
-    } else {
-        GtkWidget *widget = GTK_WIDGET(gtk_builder_get_object(priv->builder, "interface_private_key_entry"));
-        gtk_style_context_remove_class(gtk_widget_get_style_context(widget), "error");
     }
     if (!check(priv, "interface_port_entry", check_interface_listen_port, AWG_CONFIG_DEVICE_LISTEN_PORT, FALSE, error)) {
         success = FALSE;
@@ -473,23 +471,16 @@ fill_interface_from_connection(AmneziaWGEditor *self)
     if (!s_vpn)
         return;
 
-    str = nm_setting_vpn_get_secret(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY);
+    /* Читаем PrivateKey из data item, а не из secret.
+     * Это необходимо для совместимости с импортом через GUI, где NM
+     * не сохраняет секреты в профиль. */
+    str = nm_setting_vpn_get_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY);
     set_widget_text(priv->builder, "interface_private_key_entry", str ?: "");
 
     {
         GtkWidget *entry = GTK_WIDGET(gtk_builder_get_object(priv->builder, "interface_private_key_entry"));
         if (entry) {
             gtk_entry_set_visibility(GTK_ENTRY(entry), FALSE);
-        }
-    }
-
-    {
-        NMSettingSecretFlags flags;
-        if (nm_setting_get_secret_flags(NM_SETTING(s_vpn), NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY, &flags, NULL)) {
-            GtkWidget *entry = GTK_WIDGET(gtk_builder_get_object(priv->builder, "interface_private_key_entry"));
-            if (entry) {
-                nma_utils_update_password_storage(entry, flags, NM_SETTING(s_vpn), NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY);
-            }
         }
     }
 
@@ -1290,8 +1281,9 @@ init_editor_plugin(AmneziaWGEditor *self, NMConnection *connection, GError **err
 
     widget = GTK_WIDGET(gtk_builder_get_object(priv->builder, "interface_private_key_entry"));
     if (widget) {
-        NMSettingVpn *s_vpn = NM_SETTING_VPN(nm_connection_get_setting(connection, NM_TYPE_SETTING_VPN));
-        nma_utils_setup_password_storage(widget, 0, NM_SETTING(s_vpn), NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY, FALSE, FALSE);
+        /* PrivateKey теперь хранится как data item, а не как secret.
+         * Не используем nma_utils_setup_password_storage, так как это
+         * заставляет NM интерпретировать ключ как secret. */
         g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(private_key_changed_cb), self);
     }
 
@@ -1517,20 +1509,23 @@ save_interface_to_connection(AmneziaWGEditor *self)
     }
 
     str = get_widget_text(priv->builder, "interface_private_key_entry");
+    
     widget = GTK_WIDGET(gtk_builder_get_object(priv->builder, "interface_private_key_entry"));
     if (widget) {
-        NMSettingSecretFlags flags = nma_utils_menu_to_secret_flags(widget);
-        nm_setting_set_secret_flags(NM_SETTING(s_vpn), NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY, flags, NULL);
-        nma_utils_update_password_storage(widget, flags, NM_SETTING(s_vpn), NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY);
-
-        if (flags & (NM_SETTING_SECRET_FLAG_NOT_REQUIRED | NM_SETTING_SECRET_FLAG_NOT_SAVED)) {
-            nm_setting_vpn_remove_secret(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY);
-        } else if (str && str[0]) {
-            nm_setting_vpn_add_secret(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY, str);
-        } else if (priv->private_key_changed) {
-            nm_setting_vpn_remove_secret(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY);
+        /* Сохраняем PrivateKey как data item, а не как secret.
+         * Это необходимо для того, чтобы NetworkManager сохранял ключ в профиль
+         * при импорте через GUI. Иначе NM не сохраняет секреты и при подключении
+         * запрашивает их снова, что приводит к ошибке "No agents were available".
+         *
+         * Secret flags не используются для data items - все данные сохраняются
+         * в профиль автоматически. */
+        if (str && str[0]) {
+            nm_setting_vpn_add_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY, str);
+        } else {
+            nm_setting_vpn_remove_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY);
         }
     }
+    
     g_free(str);
 
     str = get_widget_text(priv->builder, "interface_port_entry");

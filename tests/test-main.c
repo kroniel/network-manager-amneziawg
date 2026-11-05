@@ -1234,14 +1234,9 @@ test_nm_connection_secrets_roundtrip(void)
 
     NMSettingVpn *s_vpn = nm_connection_get_setting_vpn(connection);
     g_assert_nonnull(s_vpn);
-    g_assert_cmpstr(nm_setting_vpn_get_secret(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY), ==,
+    /* PrivateKey теперь сохраняется как data item (для совместимости с импортом через GUI) */
+    g_assert_cmpstr(nm_setting_vpn_get_data_item(s_vpn, NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY), ==,
                     "IrQF2MOyaXsmiCEE3FUxejKowR0q65O41dHt3bSTj20=");
-
-    {
-        NMSettingSecretFlags flags = NM_SETTING_SECRET_FLAG_NOT_SAVED;
-        g_assert_true(nm_setting_get_secret_flags(NM_SETTING(s_vpn), NM_AWG_VPN_CONFIG_DEVICE_PRIVATE_KEY, &flags, NULL));
-        g_assert_cmpint(flags, ==, NM_SETTING_SECRET_FLAG_NONE);
-    }
 
     {
         g_autofree gchar *psk_key = g_strdup_printf(NM_AWG_VPN_CONFIG_PEER_PRESHARED_KEY, 0);
