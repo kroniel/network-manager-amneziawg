@@ -273,8 +273,8 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="label" translatable="yes">Private Key:</property>
-                <property name="width-chars">20</property>
-                <property name="max-width-chars">20</property>
+                <property name="width-chars">10</property>
+                <property name="max-width-chars">10</property>
               </object>
             </child>
             <child>
@@ -305,8 +305,8 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="label" translatable="yes">Listen Port:</property>
-                <property name="width-chars">20</property>
-                <property name="max-width-chars">20</property>
+                <property name="width-chars">10</property>
+                <property name="max-width-chars">10</property>
               </object>
             </child>
             <child>
@@ -335,8 +335,8 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="label" translatable="yes">MTU:</property>
-                    <property name="width-chars">20</property>
-                    <property name="max-width-chars">20</property>
+                    <property name="width-chars">10</property>
+                    <property name="max-width-chars">10</property>
                   </object>
                 </child>
                 <child>
@@ -360,8 +360,8 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="label" translatable="yes">FwMark:</property>
-                    <property name="width-chars">15</property>
-                    <property name="max-width-chars">15</property>
+                    <property name="width-chars">10</property>
+                    <property name="max-width-chars">10</property>
                   </object>
                 </child>
                 <child>
@@ -414,8 +414,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label" translatable="yes">Jc:</property>
-                                <property name="width-chars">15</property>
-                                <property name="max-width-chars">15</property>
+                                <property name="width-chars">5</property>
+                                <property name="max-width-chars">5</property>
                               </object>
                             </child>
                             <child>
@@ -444,8 +444,8 @@
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">JMax:</property>
-                                    <property name="width-chars">15</property>
-                                    <property name="max-width-chars">15</property>
+                                    <property name="width-chars">7</property>
+                                    <property name="max-width-chars">7</property>
                                   </object>
                                 </child>
                                 <child>
@@ -470,8 +470,8 @@
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">JMin:</property>
-                                    <property name="width-chars">15</property>
-                                    <property name="max-width-chars">15</property>
+                                    <property name="width-chars">7</property>
+                                    <property name="max-width-chars">7</property>
                                   </object>
                                 </child>
                                 <child>
@@ -528,8 +528,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label" translatable="yes">S1:</property>
-                                <property name="width-chars">15</property>
-                                <property name="max-width-chars">15</property>
+                                <property name="width-chars">5</property>
+                                <property name="max-width-chars">5</property>
                               </object>
                             </child>
                             <child>
@@ -554,8 +554,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label" translatable="yes">S2:</property>
-                                <property name="width-chars">15</property>
-                                <property name="max-width-chars">15</property>
+                                <property name="width-chars">5</property>
+                                <property name="max-width-chars">5</property>
                               </object>
                             </child>
                             <child>
@@ -580,8 +580,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label" translatable="yes">S3:</property>
-                                <property name="width-chars">15</property>
-                                <property name="max-width-chars">15</property>
+                                <property name="width-chars">5</property>
+                                <property name="max-width-chars">5</property>
                               </object>
                             </child>
                             <child>
@@ -606,8 +606,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label" translatable="yes">S4:</property>
-                                <property name="width-chars">15</property>
-                                <property name="max-width-chars">15</property>
+                                <property name="width-chars">5</property>
+                                <property name="max-width-chars">5</property>
                               </object>
                             </child>
                             <child>
@@ -666,8 +666,8 @@
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">H1:</property>
-                                    <property name="width-chars">15</property>
-                                    <property name="max-width-chars">15</property>
+                                    <property name="width-chars">5</property>
+                                    <property name="max-width-chars">5</property>
                                   </object>
                                 </child>
                                 <child>
@@ -675,7 +675,8 @@
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="tooltip-markup" translatable="yes">First handshake packet magic header. Format: single number (e.g., 1) or range (e.g., 100-200). H1-H4 ranges must not overlap.</property>
-                                    <property name="width-chars">20</property>
+                                    <property name="width-chars">8</property>
+                                    <property name="max-width-chars">8</property>
                                   </object>
                                 </child>
                               </object>
@@ -690,8 +691,8 @@
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">H2:</property>
-                                    <property name="width-chars">15</property>
-                                    <property name="max-width-chars">15</property>
+                                    <property name="width-chars">5</property>
+                                    <property name="max-width-chars">5</property>
                                   </object>
                                 </child>
                                 <child>
@@ -699,7 +700,8 @@
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="tooltip-markup" translatable="yes">Second handshake packet magic header. Format: single number (e.g., 2) or range (e.g., 100-200). H1-H4 ranges must not overlap.</property>
-                                    <property name="width-chars">20</property>
+                                    <property name="width-chars">8</property>
+                                    <property name="max-width-chars">8</property>
                                   </object>
                                 </child>
                               </object>
@@ -721,8 +723,8 @@
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">H3:</property>
-                                    <property name="width-chars">15</property>
-                                    <property name="max-width-chars">15</property>
+                                    <property name="width-chars">5</property>
+                                    <property name="max-width-chars">5</property>
                                   </object>
                                 </child>
                                 <child>
@@ -730,7 +732,8 @@
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="tooltip-markup" translatable="yes">Third handshake packet magic header. Format: single number (e.g., 3) or range (e.g., 100-200). H1-H4 ranges must not overlap.</property>
-                                    <property name="width-chars">20</property>
+                                    <property name="width-chars">8</property>
+                                    <property name="max-width-chars">8</property>
                                   </object>
                                 </child>
                               </object>
@@ -745,8 +748,8 @@
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">H4:</property>
-                                    <property name="width-chars">15</property>
-                                    <property name="max-width-chars">15</property>
+                                    <property name="width-chars">5</property>
+                                    <property name="max-width-chars">5</property>
                                   </object>
                                 </child>
                                 <child>
@@ -754,7 +757,8 @@
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="tooltip-markup" translatable="yes">Fourth handshake packet magic header. Format: single number (e.g., 4) or range (e.g., 100-200). H1-H4 ranges must not overlap.</property>
-                                    <property name="width-chars">20</property>
+                                    <property name="width-chars">8</property>
+                                    <property name="max-width-chars">8</property>
                                   </object>
                                 </child>
                               </object>
@@ -799,8 +803,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label" translatable="yes">I1:</property>
-                                <property name="width-chars">15</property>
-                                <property name="max-width-chars">15</property>
+                                <property name="width-chars">5</property>
+                                <property name="max-width-chars">5</property>
                               </object>
                             </child>
                             <child>
@@ -808,7 +812,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="tooltip-markup" translatable="yes">First init packet content (CPS format). Tags: &amp;lt;r N&amp;gt; (random bytes), &amp;lt;rc N&amp;gt; (random ASCII), &amp;lt;rd N&amp;gt; (random digits), &amp;lt;c&amp;gt; (counter), &amp;lt;t&amp;gt; (timestamp), &amp;lt;b 0xHEX&amp;gt; (static bytes). Example: &amp;lt;r 16&amp;gt;&amp;lt;c&amp;gt;&amp;lt;t&amp;gt;&amp;lt;b 0xDEADBEEF&amp;gt;</property>
-                                <property name="width-chars">20</property>
+                                <property name="width-chars">8</property>
+                                <property name="max-width-chars">8</property>
                               </object>
                             </child>
                           </object>
@@ -823,8 +828,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label" translatable="yes">I2:</property>
-                                <property name="width-chars">15</property>
-                                <property name="max-width-chars">15</property>
+                                <property name="width-chars">5</property>
+                                <property name="max-width-chars">5</property>
                               </object>
                             </child>
                             <child>
@@ -832,7 +837,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="tooltip-markup" translatable="yes">Second init packet content (CPS format). Tags: &amp;lt;r N&amp;gt; (random bytes), &amp;lt;rc N&amp;gt; (random ASCII), &amp;lt;rd N&amp;gt; (random digits), &amp;lt;c&amp;gt; (counter), &amp;lt;t&amp;gt; (timestamp), &amp;lt;b 0xHEX&amp;gt; (static bytes). Example: &amp;lt;rc 10&amp;gt;&amp;lt;t&amp;gt;</property>
-                                <property name="width-chars">20</property>
+                                <property name="width-chars">8</property>
+                                <property name="max-width-chars">8</property>
                               </object>
                             </child>
                           </object>
@@ -847,8 +853,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label" translatable="yes">I3:</property>
-                                <property name="width-chars">15</property>
-                                <property name="max-width-chars">15</property>
+                                <property name="width-chars">5</property>
+                                <property name="max-width-chars">5</property>
                               </object>
                             </child>
                             <child>
@@ -856,7 +862,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="tooltip-markup" translatable="yes">Third init packet content (CPS format). Tags: &amp;lt;r N&amp;gt; (random bytes), &amp;lt;rc N&amp;gt; (random ASCII), &amp;lt;rd N&amp;gt; (random digits), &amp;lt;c&amp;gt; (counter), &amp;lt;t&amp;gt; (timestamp), &amp;lt;b 0xHEX&amp;gt; (static bytes). Example: &amp;lt;b 0xDEADBEEF&amp;gt;</property>
-                                <property name="width-chars">20</property>
+                                <property name="width-chars">8</property>
+                                <property name="max-width-chars">8</property>
                               </object>
                             </child>
                           </object>
@@ -871,8 +878,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label" translatable="yes">I4:</property>
-                                <property name="width-chars">15</property>
-                                <property name="max-width-chars">15</property>
+                                <property name="width-chars">5</property>
+                                <property name="max-width-chars">5</property>
                               </object>
                             </child>
                             <child>
@@ -880,7 +887,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="tooltip-markup" translatable="yes">Fourth init packet content (CPS format). Tags: &amp;lt;r N&amp;gt; (random bytes), &amp;lt;rc N&amp;gt; (random ASCII), &amp;lt;rd N&amp;gt; (random digits), &amp;lt;c&amp;gt; (counter), &amp;lt;t&amp;gt; (timestamp), &amp;lt;b 0xHEX&amp;gt; (static bytes). Example: &amp;lt;r 16&amp;gt;&amp;lt;t&amp;gt;</property>
-                                <property name="width-chars">20</property>
+                                <property name="width-chars">8</property>
+                                <property name="max-width-chars">8</property>
                               </object>
                             </child>
                           </object>
@@ -895,8 +903,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label" translatable="yes">I5:</property>
-                                <property name="width-chars">15</property>
-                                <property name="max-width-chars">15</property>
+                                <property name="width-chars">5</property>
+                                <property name="max-width-chars">5</property>
                               </object>
                             </child>
                             <child>
@@ -904,7 +912,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="tooltip-markup" translatable="yes">Fifth init packet content (CPS format). Tags: &amp;lt;r N&amp;gt; (random bytes), &amp;lt;rc N&amp;gt; (random ASCII), &amp;lt;rd N&amp;gt; (random digits), &amp;lt;c&amp;gt; (counter), &amp;lt;t&amp;gt; (timestamp), &amp;lt;b 0xHEX&amp;gt; (static bytes). Example: &amp;lt;b 0xAABBCCDD&amp;gt;&amp;lt;rc 5&amp;gt;&amp;lt;rd 3&amp;gt;&amp;lt;c&amp;gt;</property>
-                                <property name="width-chars">20</property>
+                                <property name="width-chars">8</property>
+                                <property name="max-width-chars">8</property>
                               </object>
                             </child>
                           </object>
@@ -946,8 +955,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label" translatable="yes">Header protection key:</property>
-                                <property name="width-chars">25</property>
-                                <property name="max-width-chars">25</property>
+                                <property name="width-chars">18</property>
+                                <property name="max-width-chars">18</property>
                               </object>
                             </child>
                             <child>
@@ -955,7 +964,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="tooltip-markup" translatable="yes">Base64-encoded 32-byte key used to protect packet headers. AWG 3.1 only; leave empty for older servers.</property>
-                                <property name="width-chars">28</property>
+                                <property name="width-chars">18</property>
+                                <property name="max-width-chars">18</property>
                               </object>
                             </child>
                           </object>
@@ -970,8 +980,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label" translatable="yes">Content padding addition:</property>
-                                <property name="width-chars">25</property>
-                                <property name="max-width-chars">25</property>
+                                <property name="width-chars">18</property>
+                                <property name="max-width-chars">18</property>
                               </object>
                             </child>
                             <child>
@@ -979,7 +989,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="tooltip-markup" translatable="yes">Random padding added to every packet, as a single number (e.g. 10) or a range (e.g. 2-10), 0-65535. AWG 3.1 only.</property>
-                                <property name="width-chars">28</property>
+                                <property name="width-chars">18</property>
+                                <property name="max-width-chars">18</property>
                               </object>
                             </child>
                           </object>
@@ -994,8 +1005,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label" translatable="yes">Rekey after time:</property>
-                                <property name="width-chars">25</property>
-                                <property name="max-width-chars">25</property>
+                                <property name="width-chars">15</property>
+                                <property name="max-width-chars">15</property>
                               </object>
                             </child>
                             <child>
@@ -1003,7 +1014,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="tooltip-markup" translatable="yes">Seconds after which a session is rekeyed, as a number or range (e.g. 115-125). AWG 3.1 only.</property>
-                                <property name="width-chars">28</property>
+                                <property name="width-chars">18</property>
+                                <property name="max-width-chars">18</property>
                               </object>
                             </child>
                           </object>
@@ -1018,8 +1030,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label" translatable="yes">Rekey timeout:</property>
-                                <property name="width-chars">25</property>
-                                <property name="max-width-chars">25</property>
+                                <property name="width-chars">12</property>
+                                <property name="max-width-chars">12</property>
                               </object>
                             </child>
                             <child>
@@ -1027,7 +1039,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="tooltip-markup" translatable="yes">Seconds between rekey attempts, as a number or range (e.g. 5-6). AWG 3.1 only.</property>
-                                <property name="width-chars">28</property>
+                                <property name="width-chars">18</property>
+                                <property name="max-width-chars">18</property>
                               </object>
                             </child>
                           </object>
@@ -1042,8 +1055,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label" translatable="yes">Reject after time:</property>
-                                <property name="width-chars">25</property>
-                                <property name="max-width-chars">25</property>
+                                <property name="width-chars">15</property>
+                                <property name="max-width-chars">15</property>
                               </object>
                             </child>
                             <child>
@@ -1051,7 +1064,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="tooltip-markup" translatable="yes">Seconds after which a session is dropped, as a number or range (e.g. 175-185). AWG 3.1 only.</property>
-                                <property name="width-chars">28</property>
+                                <property name="width-chars">18</property>
+                                <property name="max-width-chars">18</property>
                               </object>
                             </child>
                           </object>
@@ -1066,8 +1080,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label" translatable="yes">Keepalive timeout:</property>
-                                <property name="width-chars">25</property>
-                                <property name="max-width-chars">25</property>
+                                <property name="width-chars">15</property>
+                                <property name="max-width-chars">15</property>
                               </object>
                             </child>
                             <child>
@@ -1075,7 +1089,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="tooltip-markup" translatable="yes">Seconds before a keepalive is sent, as a number or range (e.g. 10-12). AWG 3.1 only.</property>
-                                <property name="width-chars">28</property>
+                                <property name="width-chars">18</property>
+                                <property name="max-width-chars">18</property>
                               </object>
                             </child>
                           </object>
@@ -1090,8 +1105,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label" translatable="yes">Max handshake attempts:</property>
-                                <property name="width-chars">25</property>
-                                <property name="max-width-chars">25</property>
+                                <property name="width-chars">18</property>
+                                <property name="max-width-chars">18</property>
                               </object>
                             </child>
                             <child>
@@ -1099,7 +1114,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="tooltip-markup" translatable="yes">How many handshake attempts are made, as a number or range (e.g. 16-20). AWG 3.1 only.</property>
-                                <property name="width-chars">28</property>
+                                <property name="width-chars">18</property>
+                                <property name="max-width-chars">18</property>
                               </object>
                             </child>
                           </object>
@@ -1114,8 +1130,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label" translatable="yes">Random trailers</property>
-                                <property name="width-chars">25</property>
-                                <property name="max-width-chars">25</property>
+                                <property name="width-chars">12</property>
+                                <property name="max-width-chars">12</property>
                               </object>
                             </child>
                             <child>
@@ -1137,8 +1153,8 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label" translatable="yes">Disable cookies</property>
-                                <property name="width-chars">25</property>
-                                <property name="max-width-chars">25</property>
+                                <property name="width-chars">12</property>
+                                <property name="max-width-chars">12</property>
                               </object>
                             </child>
                             <child>
